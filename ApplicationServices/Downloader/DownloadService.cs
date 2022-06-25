@@ -26,15 +26,6 @@ namespace ApplicationServices.Downloader
         }
         public async Task StartDownload()
         {
-            //var baseUrl = _configuration.GetSection("WebAppUrl:BaseUrl").Get<string>();
-            //var mainDirectory = _configuration.GetSection("Directories:MainDirectory").Get<string>();
-
-            //var httpResponse = await _httpClientFactory.CreateClient().GetAsync(baseUrl);
-
-            //if (httpResponse.IsSuccessStatusCode)
-            //{
-            //    var responseString = await httpResponse.Content.ReadAsStringAsync();
-            //}
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             var urls = new List<string>() {""};
@@ -64,31 +55,8 @@ namespace ApplicationServices.Downloader
                         continue;
                     }
 
-                    //var fileName = !string.IsNullOrWhiteSpace(url) ? url[9..(url.Length - 1)] : "main";
-
-                    //var folderPath = PathCombine(mainDirectory, fileName);
-                    //var directoryPath = Path.GetDirectoryName(folderPath);
-                    //folderPath = folderPath.Replace("/", "\\");
-
-                    //try
-                    //{
-                    //    if (!Directory.Exists(directoryPath))
-                    //    {
-                    //        Directory.CreateDirectory(directoryPath);
-                    //    }
-
-                    //    using (StreamWriter outputFile = new StreamWriter(folderPath + ".html"))
-                    //    {
-                    //        await outputFile.WriteAsync(responseString);
-                    //    }
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    throw ex;
-                    //}
-
-                    taskFiles.Add(new TaskFile 
-                    { 
+                    taskFiles.Add(new TaskFile
+                    {
                         Response = responseString,
                         Directory = mainDirectory,
                         Url = url
