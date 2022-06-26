@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ApplicationServices.Downloader.Models;
+using Microsoft.Extensions.Configuration;
+using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,30 +19,34 @@ namespace ApplicationServices.Downloader
         private readonly IHttpClientFactory _httpClientFactory;
         List<string> visitedUrls = new List<string>();
         HttpResponseMessage httpResponse;
+        private readonly string baseUrl;
+        private readonly string mainDirectoryPath;
 
-        List<TaskFile> taskFiles = new List<TaskFile>();
+        List<FileModel> fileModels = new List<FileModel>();
         public DownloadService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
+            baseUrl = _configuration.GetSection("WebAppUrl:BaseUrl").Get<string>();
+            mainDirectoryPath = _configuration.GetSection("Directories:MainDirectory").Get<string>();
         }
         public async Task StartDownload()
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
+            Console.WriteLine("File download started...");
             var urls = new List<string>() {""};
             await Process(urls);
-            var tasks = taskFiles.Select(f => SaveFile(f));
-            await Task.WhenAll(tasks);
+            var fileModeltasks = fileModels.Select(fileModel => SaveFile(fileModel));
+            await Task.WhenAll(fileModeltasks);
             stopWatch.Stop();
+            Console.WriteLine("File download Completed...");
+            Console.WriteLine($"{visitedUrls.Count} Urls processed");
             Console.WriteLine(stopWatch.Elapsed);
         }
 
         private async Task Process(List<string> urls)
         {
-            var baseUrl = _configuration.GetSection("WebAppUrl:BaseUrl").Get<string>();
-            var mainDirectory = _configuration.GetSection("Directories:MainDirectory").Get<string>();
-
             foreach (var url in urls)
             {
                 if (!visitedUrls.Contains(url) && !url.Contains("http"))
@@ -55,17 +61,17 @@ namespace ApplicationServices.Downloader
                         continue;
                     }
 
-                    taskFiles.Add(new TaskFile
+                    fileModels.Add(new FileModel
                     {
-                        Response = responseString,
-                        Directory = mainDirectory,
+                        FileContent = responseString,
+                        Directory = mainDirectoryPath,
                         Url = url
                     });
 
                     //await Task.Run(() => SaveFile(responseString, url, mainDirectory)).ConfigureAwait(false);
 
-                    var newUrls = GetNewUrls(responseString);
-                    Console.WriteLine(newUrls.Count);
+                    var newUrls = HelperExtensions.GetNewUrls(responseString);
+                    Console.WriteLine($"Found new urls {newUrls.Count} in {url}");
 
                     if (newUrls.Count > 0)
                     {
@@ -84,6 +90,8 @@ namespace ApplicationServices.Downloader
             var url = !string.IsNullOrWhiteSpace(urlPath) ? 
                             $"{baseUrl}{urlPath[9..(urlPath.Length - 1)]}" : baseUrl;
 
+            Console.WriteLine($"Processing url : {url}");
+
             httpResponse = await _httpClientFactory.CreateClient().GetAsync(url).ConfigureAwait(false);
             if (httpResponse.IsSuccessStatusCode)
             {
@@ -94,11 +102,11 @@ namespace ApplicationServices.Downloader
             return null;
         }
 
-        private async Task SaveFile(string responseString, string url, string mainDirectory) 
+        private async Task SaveFile(FileModel fileModel)
         {
-            var fileName = !string.IsNullOrWhiteSpace(url) ? url[9..(url.Length - 1)] : "main";
+            var fileName = HelperExtensions.GetFileName(fileModel.Url);
 
-            var folderPath = PathCombine(mainDirectory, fileName);
+            var folderPath = HelperExtensions.PathCombine(fileModel.Directory, fileName);
             var directoryPath = Path.GetDirectoryName(folderPath);
             folderPath = folderPath.Replace("/", "\\");
 
@@ -111,7 +119,7 @@ namespace ApplicationServices.Downloader
 
                 using (StreamWriter outputFile = new StreamWriter(folderPath + ".html"))
                 {
-                    await outputFile.WriteAsync(responseString).ConfigureAwait(false);
+                    await outputFile.WriteAsync(fileModel.FileContent).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -120,58 +128,6 @@ namespace ApplicationServices.Downloader
             }
         }
 
-        private async Task SaveFile(TaskFile taskFile)
-        {
-            var fileName = !string.IsNullOrWhiteSpace(taskFile.Url) ? taskFile.Url[9..(taskFile.Url.Length - 1)] : "main";
-
-            var folderPath = PathCombine(taskFile.Directory, fileName);
-            var directoryPath = Path.GetDirectoryName(folderPath);
-            folderPath = folderPath.Replace("/", "\\");
-
-            try
-            {
-                if (!Directory.Exists(directoryPath))
-                {
-                    Directory.CreateDirectory(directoryPath);
-                }
-
-                using (StreamWriter outputFile = new StreamWriter(folderPath + ".html"))
-                {
-                    await outputFile.WriteAsync(taskFile.Response).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private List<string> GetNewUrls(string responseString) 
-        {
-            var pattern = "<a href=\".*?\"";
-            var regex = new Regex(pattern, RegexOptions.IgnoreCase);
-            var newUrls = regex.Matches(responseString).Select(a => a.Value).ToList();
-
-            return newUrls;
-        }
-
-        private string PathCombine(string path1, string path2)
-        {
-            if (Path.IsPathRooted(path2))
-            {
-                path2 = path2.TrimStart(Path.DirectorySeparatorChar);
-                path2 = path2.TrimStart(Path.AltDirectorySeparatorChar);
-            }
-
-            return Path.Combine(path1, path2);
-        }
-
-        public class TaskFile 
-        {
-            public string Response { get; set; }
-            public string Url { get; set; }
-            public string Directory { get; set; }
-        }
     }
 
 }
