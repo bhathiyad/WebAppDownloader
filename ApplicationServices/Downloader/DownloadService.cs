@@ -74,8 +74,6 @@ namespace ApplicationServices.Downloader
                         Url = url
                     });
 
-                    //await Task.Run(() => SaveFile(responseString, url, mainDirectory)).ConfigureAwait(false);
-
                     var newUrls = HelperExtensions.GetNewUrls(response.httpResponseString);
                     Console.WriteLine($"Found new urls {newUrls.Count}");
 
