@@ -12,20 +12,26 @@ namespace ApplicationServices.File
     {
         public async Task SaveFileToDisk(FileModel fileModel)
         {
-            var fileName = HelperExtensions.GetFileName(fileModel.Url);
-
-            var folderPath = HelperExtensions.PathCombine(fileModel.Directory, fileName);
-            var directoryPath = Path.GetDirectoryName(folderPath);
-            folderPath = folderPath.Replace("/", "\\");
-
-            if (!Directory.Exists(directoryPath))
+            try
             {
-                Directory.CreateDirectory(directoryPath);
+                var fileName = HelperExtensions.GetFileName(fileModel.Url);
+
+                var folderPath = HelperExtensions.PathCombine(fileModel.Directory, fileName);
+                var directoryPath = Path.GetDirectoryName(folderPath);
+                folderPath = folderPath.Replace("/", "\\");
+
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                using (StreamWriter outputFile = new StreamWriter(folderPath + ".html"))
+                {
+                    await outputFile.WriteAsync(fileModel.FileContent).ConfigureAwait(false);
+                }
             }
-
-            using (StreamWriter outputFile = new StreamWriter(folderPath + ".html"))
+            catch (Exception)
             {
-                await outputFile.WriteAsync(fileModel.FileContent).ConfigureAwait(false);
             }
 
         }

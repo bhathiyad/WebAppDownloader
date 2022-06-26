@@ -15,8 +15,6 @@ namespace StartUp
                                     .AddJsonFile("appsettings.json")
                                     .Build();
 
-            Console.WriteLine("Hello World!");
-
             var services = new ServiceCollection();
             services.AddServiceDependencies(configuration);
             services.AddHttpClients(configuration);
