@@ -44,6 +44,7 @@ namespace ApplicationServices.Downloader
             var urls = new List<string>() { "" };
             await Process(urls);
             var fileModeltasks = fileModels.Select(fileModel => _fileService.SaveFileToDisk(fileModel));
+            Console.WriteLine("Writing files to disk...");
             await Task.WhenAll(fileModeltasks);
 
             stopWatch.Stop();
