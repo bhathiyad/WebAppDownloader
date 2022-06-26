@@ -14,21 +14,21 @@ namespace ApplicationServices.File
         {
             try
             {
-                var fileName = HelperExtensions.GetFileName(fileModel.Url);
+            var fileName = HelperExtensions.GetFileName(fileModel.Url);
 
-                var folderPath = HelperExtensions.PathCombine(fileModel.Directory, fileName);
-                var directoryPath = Path.GetDirectoryName(folderPath);
-                folderPath = folderPath.Replace("/", "\\");
+            var folderPath = HelperExtensions.PathCombine(fileModel.Directory, fileName);
+            var directoryPath = Path.GetDirectoryName(folderPath);
+            folderPath = folderPath.Replace("/", "\\");
 
-                if (!Directory.Exists(directoryPath))
-                {
-                    Directory.CreateDirectory(directoryPath);
-                }
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
 
-                using (StreamWriter outputFile = new StreamWriter(folderPath + ".html"))
-                {
-                    await outputFile.WriteAsync(fileModel.FileContent).ConfigureAwait(false);
-                }
+            using (StreamWriter outputFile = new StreamWriter(folderPath + ".html"))
+            {
+                await outputFile.WriteAsync(fileModel.FileContent).ConfigureAwait(false);
+            }
             }
             catch (Exception)
             {
