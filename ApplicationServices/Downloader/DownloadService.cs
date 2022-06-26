@@ -51,6 +51,7 @@ namespace ApplicationServices.Downloader
             Console.WriteLine("File download Completed...");
             Console.WriteLine($"{visitedUrls.Count} Urls processed");
             Console.WriteLine(stopWatch.Elapsed);
+            Console.ReadLine();
         }
 
         private void Process(List<string> urls)
