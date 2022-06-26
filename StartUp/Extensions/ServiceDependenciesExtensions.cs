@@ -1,4 +1,6 @@
 ﻿using ApplicationServices.Downloader;
+using ApplicationServices.File;
+using ApplicationServices.RequestManager;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,6 +17,8 @@ namespace StartUp.Extensions
             services.AddHttpClient();
             services.AddSingleton<Downloader>();
             services.AddSingleton<IDownloadService, DownloadService>();
+            services.AddScoped<IRequestManagerService, RequestManagerService>();
+            services.AddScoped<IFileService, FileService>();
         }
     }
 }
