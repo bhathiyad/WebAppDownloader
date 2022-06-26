@@ -8,7 +8,7 @@ namespace ApplicationServices.RequestManager
 {
     public interface IRequestManagerService
     {
-        Task<ResponseModel> GetWebPageContent(string baseUrl, string urlPath);
-        ResponseModel GetWebPageContentNotAsync(string baseUrl, string urlPath);
+        Task<ResponseModel> GetWebPageContentAsync(string baseUrl, string urlPath);
+        ResponseModel GetWebPageContent(string baseUrl, string urlPath);
     }
 }

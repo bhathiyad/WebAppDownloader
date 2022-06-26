@@ -15,7 +15,7 @@ namespace ApplicationServices.RequestManager
         {
             _httpClientFactory = httpClientFactory;
         }
-        public async Task<ResponseModel> GetWebPageContent(string baseUrl, string urlPath)
+        public async Task<ResponseModel> GetWebPageContentAsync(string baseUrl, string urlPath)
         {
             var url = !string.IsNullOrWhiteSpace(urlPath) ?
                 $"{baseUrl}{urlPath[9..(urlPath.Length - 1)]}" : baseUrl;
@@ -39,7 +39,7 @@ namespace ApplicationServices.RequestManager
             return null;
         }
 
-        public ResponseModel GetWebPageContentNotAsync(string baseUrl, string urlPath)
+        public ResponseModel GetWebPageContent(string baseUrl, string urlPath)
         {
 
             var url = !string.IsNullOrWhiteSpace(urlPath) ?

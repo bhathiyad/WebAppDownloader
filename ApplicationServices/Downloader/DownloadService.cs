@@ -44,6 +44,7 @@ namespace ApplicationServices.Downloader
             var urls = new List<string>() { "" };
             Process(urls);
             var fileModeltasks = fileModels.Select(fileModel => _fileService.SaveFileToDisk(fileModel));
+            Console.WriteLine("Writing files to disk...");
             await Task.WhenAll(fileModeltasks);
 
             stopWatch.Stop();
@@ -58,7 +59,7 @@ namespace ApplicationServices.Downloader
             {
                 if (!visitedUrls.Contains(url) && !url.Contains("http"))
                 {
-                    var response = _requestManagerService.GetWebPageContentNotAsync(baseUrl, url);
+                    var response = _requestManagerService.GetWebPageContent(baseUrl, url);
 
                     visitedUrls.Add(url);
 
@@ -71,8 +72,6 @@ namespace ApplicationServices.Downloader
                             Url = url
                         });
 
-                        //await Task.Run(() => SaveFile(responseString, url, mainDirectory)).ConfigureAwait(false);
-
                         var newUrls = HelperExtensions.GetNewUrls(response.httpResponseString);
                         Console.WriteLine($"Found new urls {newUrls.Count}");
 
@@ -84,41 +83,6 @@ namespace ApplicationServices.Downloader
                 }
             });
 
-            //foreach (var url in urls)
-            //{
-            //    if (!visitedUrls.Contains(url) && !url.Contains("http"))
-            //    {
-            //        var response = await _requestManagerService.GetWebPageContent(baseUrl, url);
-
-            //        visitedUrls.Add(url);
-
-            //        if (response.httpResponseMessage.RequestMessage.RequestUri.ToString().Contains("404"))
-            //        {
-            //            continue;
-            //        }
-
-            //        fileModels.Add(new FileModel
-            //        {
-            //            FileContent = response.httpResponseString,
-            //            Directory = mainDirectoryPath,
-            //            Url = url
-            //        });
-
-            //        //await Task.Run(() => SaveFile(responseString, url, mainDirectory)).ConfigureAwait(false);
-
-            //        var newUrls = HelperExtensions.GetNewUrls(response.httpResponseString);
-            //        Console.WriteLine($"Found new urls {newUrls.Count}");
-
-            //        if (newUrls.Count > 0)
-            //        {
-            //            await Process(newUrls);
-            //        }
-            //        else
-            //        {
-            //            break;
-            //        }
-            //    }
-            //}
         }
 
     }
