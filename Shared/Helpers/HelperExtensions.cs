@@ -20,7 +20,7 @@ namespace Shared.Helpers
 
         public static string GetFileName(string url, string defaultName = "main")
         {
-            var fileName = !string.IsNullOrWhiteSpace(url) ? url[9..(url.Length - 1)] : defaultName;
+            var fileName = !(string.IsNullOrWhiteSpace(url) || url == "<a href=\"/\"") ? url[9..(url.Length - 1)] : defaultName;
 
             return fileName;
         }

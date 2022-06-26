@@ -50,6 +50,7 @@ namespace ApplicationServices.Downloader
             Console.WriteLine("File download Completed...");
             Console.WriteLine($"{visitedUrls.Count} Urls processed");
             Console.WriteLine(stopWatch.Elapsed);
+            Console.ReadLine();
         }
 
         private async Task Process(List<string> urls)
